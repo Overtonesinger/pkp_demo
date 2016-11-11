@@ -1,0 +1,11 @@
+{
+	"repositories": [
+		{
+			"type": "vcs",
+			"url": "https://github.com/Overtonesinger/xmlseclibs"
+  	}
+  ],
+	"require": {
+		"robrichards/xmlseclibs": "^2.0.1"
+	}
+}

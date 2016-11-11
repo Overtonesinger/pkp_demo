@@ -1,14 +1,4 @@
 <?php        // Author: Filip Rydlo
-require_once(dirname(__FILE__) . '/vendor/autoload.php');
-
-//define('WSDL', 'https://pg.eet.cz/eet/services/EETServiceSOAP/v3/?wsdl');  // Does NOT tolerate trailing '/' after "v3"! Remove it!
-define('ENDPOINT_LOCATION', 'https://pg.eet.cz/eet/services/EETServiceSOAP/v3/');  // hint: location is the URL of the SOAP server
-define('ENDPOINT_URI',      'http://fs.mfcr.cz/eet/schema/v3');  // hint: uri is the target namespace of the SOAP service
-
-$path_to_wsdl_DIR= dirname(__FILE__) . DIRECTORY_SEPARATOR . 'wsdl' . DIRECTORY_SEPARATOR;
-define('WSDL_LOCAL',	'EETServiceSOAP.wsdl');  // usage: $path_to_wsdl_DIR . WSDL_LOCAL
-define('EXAMPLE_XML',   'CZ1212121218.valid.v3.xml');	// usage: $path_to_wsdl_DIR . EXAMPLE_XML
-
 
 //-------- simple helper functions for improved code readability ---------
 function humanReadable_BKP($BKP_hex)
@@ -38,6 +28,29 @@ $celk_trzba= '34113.00';
 $plaintext = $dic_popl  .'|'. $id_provoz .'|'. $id_pokl .'|'. $porad_cis .'|'. $dat_trzby .'|'. $celk_trzba;
 echo "plaintext: ". $plaintext ."\n\n";
 
+//---- Sign plaintext using openssl_sign
+$private_key= file_get_contents('./03.key.pem');
+$public_cert= file_get_contents('./03.crt.pem');
+$binary_signature = "";  //for call by ref.
+// At least with PHP 5.2.2 / OpenSSL 0.9.8b (Fedora 7)  there seems to be no need to call openssl_get_privatekey or similar.
+// Just pass the key as it is in *.pem format
+openssl_sign($plaintext, $binary_signature, $private_key, OPENSSL_ALGO_SHA256);
+
+//---- Verify the signature
+$ok = openssl_verify($data, $binary_signature, $public_cert, OPENSSL_ALGO_SHA256);
+if($ok==1) print "Signature \033[32m OK \033[0m\n";  // Green "OK" in linux console
+else print "Signature is \033[31m BAD ! \033[0m\n";  // Red "BAD"!
+
+//---- Check if the calculated signature is SAME as expected
+$base64_signature= base64_encode($binary_signature);
 // PKP & BKP "verification codes" from the example XML: 'CZ1212121218.valid.v3.xml'
 $PKP_code= 'D84gY6RlfUi8dWdhL1zn0LE0s+aqLohtIxY0y88GoG5Ak8pBEH3/Ff2aFW7H6fvRxDMKsvM/VIYtUQxoDEctVGMSU/JDf9Vd0eQwgfLm683p316Sa4BUnVrIsHzwMyYkjpn66I072G2AvOUP4X5UiIYtHTwyMVyp+N/zzay3D7Q619ylDb6puN2iIlLsu+GNSB9DvsQbiLXPH6iK0R9FpR15v2y+0Uhh8NNJKl7O8Us9jbgokrA9gze+erQbhmwTm2nn2+7JGrPDqhyhwWZNLUziGSbC99wJpkEnIs0das/4hFNE3DnLvv4MsXwWCLOUZty6t6DAijlCzQj7KFKw0g==';
-$BKP=      '8F8ABFEB-B76E7064-343A1460-6C6E6D86-B0F99C24';  // digest="SHA1" encoding="base16"
+// string-compare the expected  $BKP_code  to the calculated signature in base64 encoding 
+if(strcmp($PKP_code, $base64_signature) !== 0) {
+  print "Signature is DIFFERENT than expected!\n";
+  print "Expected:\n$PKP_code\n\n";
+  print "Actually got:\n$base64_signature\n";
+}
+
+//---- Calculate BKP too. And check it against expected value of $BKP
+$BKP= '8F8ABFEB-B76E7064-343A1460-6C6E6D86-B0F99C24';  // digest="SHA1" encoding="base16"
