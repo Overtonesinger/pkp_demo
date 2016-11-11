@@ -54,3 +54,6 @@ if(strcmp($PKP_code, $base64_signature) !== 0) {
 
 //---- Calculate BKP too. And check it against expected value of $BKP
 $BKP= '8F8ABFEB-B76E7064-343A1460-6C6E6D86-B0F99C24';  // digest="SHA1" encoding="base16"
+
+// This WILL BE FUN!!!  Lets RUN IT and we will see!  :-)))
+// FR
