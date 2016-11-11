@@ -58,3 +58,9 @@ local.properties
 
 # Locally stored "Eclipse launch configurations"
 *.launch
+
+# Composer #
+############
+/vendor/
+# composer library lock file
+composer.lock
