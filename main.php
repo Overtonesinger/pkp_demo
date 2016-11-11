@@ -37,7 +37,7 @@ $binary_signature = "";  //for call by ref.
 openssl_sign($plaintext, $binary_signature, $private_key, OPENSSL_ALGO_SHA256);
 
 //---- Verify the signature
-$ok = openssl_verify($data, $binary_signature, $public_cert, OPENSSL_ALGO_SHA256);
+$ok = openssl_verify($plaintext, $binary_signature, $public_cert, OPENSSL_ALGO_SHA256);
 if($ok==1) print "Signature \033[32m OK \033[0m\n";  // Green "OK" in linux console
 else print "Signature is \033[31m BAD ! \033[0m\n";  // Red "BAD"!
 
