@@ -3,4 +3,4 @@
 
 $PWD/composer.phar install
 
-echo -e "\\nHotovo! :-)\\n    - skript EET:PKP Demo spustite prikazem:  php -f main.php"
+echo -e "\\nHotovo! :-)\\n    - skript EET:PKP Demo spustite prikazem:  php -f main.php   // nebo proste jen: ./t"
